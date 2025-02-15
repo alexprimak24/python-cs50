@@ -1,0 +1,48 @@
+------- SCALING SERVERS -------
+
+1.1 Load Balancing Methods:
+
+    1.Random Choise
+    2.Round Robin - when user 1 goes to server 1 , user 2 to server 2, user 3 to server 3, and if we have only 3 servers, user 4 goes also to server 1
+    3.Fewest Connections
+    4.etc....
+
+1.2 But with Load Balancer there is a problem: When I make another request, it can forward me to another server that doesn't know about my session and I will be prompted to login again
+
+    To fix it, Session-Aware Load Balancing comes into play:
+        1.Sticky Sessions - load balancer remembers at what server I was the last time and send me there again (but in that case we may end up that one server gets way more load than others)
+        2.Sessions in Database - some tradeoff to solve the problem of Sticky Sessions is to store Sessions in DBs
+        3.Client-Side Sessions - store session inside cookies (minus - someone can manipulate your cookies which can lead to vulnerabilities)
+
+1.3 Autoscalers - of course there are no fixed amount of users that come to your page daily, so autoscalers will help you if some day you have 2 servers that can't handle incoming traffic, and for that third or fourth server will be added
+    once amount of traffic decreased - you will return to your common 2 servers. It can not only scale up but to scale down which is logical actually.
+1.4 Another benefit of Load Balancer is if for some reason some Server goes down, Load Balancer stops forwarding requests there and sends them to the remaining servers. 
+    Load Balancer knows that Server is down as every set period of time it pings servers to check their well-being.
+
+------- SCALING DATABASES -------
+
+2.1 It is pretty popular to Host your database separate to your application so it can listen to requests incoming from your application and process it.
+2.2 We can split our database to smaller databases, there are actually 2 common ways:
+        1.Vertical Partitioning - is when we have Flight table, Airport table, Contry table....
+        2.Horizontal Partitioning - we actually represent the same kind of data but still divide it: flights -> flights_domestic , flights_international.... (so these tables still have exact same columns)
+        Minus it is become more expensive if we for some reason want to join this data, so it is better to use it only if we are sure that they are going to be separate.
+2.3 If our db goes down our application actually becomes not really functioning, to solve this we have Database Replication.
+        1.Single-Primary Replication - we have multiple dbs, but one db is considered primary db. So from other db we can only read, but for Primary we can read&write. And every time our Primary db changes it informs other dbs that they need to update their state.
+        Drawbacks is that only 1 db can be used for write access + still single-point failure problem still exist. Okay we can now read data if our primary is down but we still can't write.
+        2.Multi-Primary Replication - by its name it means that all dbs are primary, the hard thing about it as if any of the dbs changes, it should inform others to update the state. 
+        Also if different people in different databases are changing the same row of the database, it is important for db to know how to handle these conflicts.
+        Uniqueness problem - if at the same time different dbs assigned different users the same unique id but we set that id should be unique.
+
+------- CACHING -------
+
+3.1 Image we requested to open a news page and in 0.5s another user also requested the same page, logically doesn't seem that during 0.5s other posts were added so it is smart to somehow give that same page as I got to that user.
+    For that purpose Chaching is here:
+        1.Client-Side Caching - f.e. browser will just remember that page that you visited so you won't need to rerequest it again but just the browser will give it to your from cache.
+        Server may send to the Client in the Headers: Cache-Control: max-age=86400 - by that my browser knows that it can cache the page for that amount of seconds and if I reload the page it will load cached page, but if that period passed - I will make another request to the Server.
+        But with that we face the problem of getting outdated info if the time didn't pass but new info was added. To solve it we have in Headers: Cache-Control: max-age=86400 + ETag: "395086348576353". 
+        ETag is a unique identifier that tells which version of the css for example to load, whether it is up to date or not. 
+        So you make a request first and ask whether ETag changed -> server replies - no, then you just load cached css, if it tells - yes - logically you load new css.
+        2.Server-Side Caching. As an example Django Cache Framework
+            1.Per-View Caching - cache the page.
+            2.Template Fragment Caching - cache some parts of the page that will most likely not change, like header, footer, sidebar....
+            3.Low-Level Cache API - it helps to cache some queries if you don't want to cache the whole page.

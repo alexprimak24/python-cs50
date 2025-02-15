@@ -1,0 +1,16 @@
+# in that file we spesify different services that we want to be the part of our application
+version: "3"
+
+services:
+  db:
+    # database will be run based on that postgres condition
+    image: postgres
+
+  web:
+    # web application will be run based on the docker file that I wrote in that dir
+    build: .
+    volumes:
+      - .:/usr/src/app
+    ports:
+      # I want port 8000 on the container to correspond port 8000 on my computer
+      - "8000:8000"

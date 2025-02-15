@@ -1,0 +1,16 @@
+------- GIT -------
+1.So if you are building opensourse and you made a commit and then another commit where you exposed your .env for example, you can actually commit again to hide it, but if someone who has access to your application can also have access to the previous version of your application. The best way if that happened is to just change you private keys ,if possible, as removing git history is kinda big mess.
+
+------- HTML -------
+1.Phishing
+
+------- DJANGO -------
+1.Secret-Key Cryptography -> I take my priv key + my text => cyphertext <- it can only be read if I use my priv key to decrypt it.
+2.Public-Key Cryptography -> 1 key is public , another is private.
+
+------- SQL -------
+1.Just to remember that passwords must be hashed + salt have to be added.
+
+------- API -------
+1.Rate Limiting - limiting the user to a specific amount of requests per minute for example.
+2.Route Authentication - users with different roles have access to different amount of data
